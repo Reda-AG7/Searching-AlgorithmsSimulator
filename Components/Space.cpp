@@ -75,3 +75,6 @@ void Space::setVisited() {
 void Space::colorPath(){
     rec->setFillColor(sf::Color::Magenta);
 }
+bool Space::isWall() const{
+    return type == 1;
+}

@@ -23,6 +23,7 @@ class Space{
     bool isVisited() const;
     void setVisited();
     void colorPath();
+    bool isWall() const;
 };
 
 #endif

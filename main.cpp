@@ -53,7 +53,7 @@ void initFonts(){
     regularFont = new sf::Font();
     regularFont->loadFromFile("Fonts/Roboto-Regular.ttf");
 }
-std::vector<Button*> initButtons(sf::RenderWindow* window)
+std::vector<Button*> initButtons()
 {
     std::vector<Button*> algoButtons(5);
     algoButtons[0] = new Button(100.0f,50.0f,150.0f,50.0f,"Back", *regularFont, 20u, sf::Color::White);
@@ -63,7 +63,7 @@ std::vector<Button*> initButtons(sf::RenderWindow* window)
     algoButtons[4] = new Button(window->getSize().x/2 + 1.5*160.0f,130.0f,150.0f,50.0f,"Start", *regularFont, 20u, sf::Color::White);
     return algoButtons;
 }
-sf::Text* initTime(sf::RenderWindow* window)
+sf::Text* initTime()
 {
     sf::Text* gameTime = new sf::Text();
     gameTime->setString("00:00:00");
@@ -74,7 +74,7 @@ sf::Text* initTime(sf::RenderWindow* window)
     gameTime->setPosition(window->getSize().x-timeRec.width, 50.0f);
     return gameTime;;
 }
-MyText* initTitle(sf::RenderWindow* window)
+MyText* initTitle()
 {
     std::string s;
     if(renderID == 1) s = "DFS";
@@ -83,14 +83,14 @@ MyText* initTitle(sf::RenderWindow* window)
     MyText* title = new MyText(window->getSize().x/2.0f, 50.0f,s,*titleFont, 40u, sf::Color::White);
     return title;
 }
-sf::RectangleShape* initFrame(sf::RenderWindow* window){
+sf::RectangleShape* initFrame(){
     sf::RectangleShape* boardFrame = new sf::RectangleShape(sf::Vector2f(window->getSize().x-10.0f,window->getSize().y-210.0f));
     boardFrame->setOutlineThickness(5u);
     boardFrame->setOutlineColor(sf::Color::Blue);
     boardFrame->setPosition(5.0f,200.0f);
     return boardFrame;
 }
-std::vector<std::vector<Space*>> initBoard(sf::RenderWindow* window, sf::RectangleShape* boardFrame)
+std::vector<std::vector<Space*>> initBoard()
 {
     //Fill the board
     int y = boardFrame->getGlobalBounds().top+10;
@@ -108,7 +108,7 @@ std::vector<std::vector<Space*>> initBoard(sf::RenderWindow* window, sf::Rectang
 
 
 //Updaters
-void updateBoard(sf::RenderWindow* window, std::vector<std::vector<Space*>>& board)
+void updateBoard(std::vector<std::vector<Space*>>& board)
 {
     sf::Vector2f mousePosition = sf::Vector2f(static_cast<float>(sf::Mouse::getPosition(*window).x),
     static_cast<float>(sf::Mouse::getPosition(*window).y));
@@ -143,7 +143,7 @@ void updateTime(sf::Text* time)
     strMin += ((":"+strSec) + (":" + strMil));
     time->setString(strMin);
 }
-void updateButtons(std::vector<Button*>& buttons, sf::RenderWindow* window){
+void updateButtons(std::vector<Button*>& buttons){
     sf::Vector2f mousePosition = sf::Vector2f((float)sf::Mouse::getPosition(*window).x,
                                             (float)sf::Mouse::getPosition(*window).y);
                                             float dt = 10.0f;
@@ -162,20 +162,20 @@ void updateButtons(std::vector<Button*>& buttons, sf::RenderWindow* window){
     else if(buttons[3]->isButtonClicked()) buttonID = 3;
     else if(buttons[4]->isButtonClicked()) startClicked = true;
 }
-int updateMainState(float& dt, MainState* mainState, sf::RenderWindow* window){
+int updateMainState(float& dt, MainState* mainState){
     sf::Vector2f mousePosition = sf::Vector2f((float)sf::Mouse::getPosition(*window).x,
                                             (float)sf::Mouse::getPosition(*window).y);
     return mainState->update(dt, mousePosition);
 }
 
 //Renderers
-void render(sf::RenderWindow* window, sf::RectangleShape* background, std::vector<Button*>& buttons, sf::RectangleShape* boardFrame, std::vector<std::vector<Space*>>& board, sf::Text* time){
+void render(std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board, sf::Text* time){
     //Updating
     if(startClicked) updateTime(time);
-    updateButtons(buttons, window);
-    updateBoard(window, board);
+    updateButtons(buttons);
+    updateBoard(board);
     
-    auto title = initTitle(window);
+    auto title = initTitle();
 
     //Rendering
     window->clear();
@@ -206,14 +206,14 @@ std::pair<int,int> getCoordinatesFromIndex(int& col, int index){
 }
 bool isValid(int i, int j, std::vector<std::vector<Space*>>& board, us_int& closedList){
     if(i<0 || i>=board.size() || j<0 || j>=board[0].size() || 
-        board[i][j]->getType()==1) return false;
+        board[i][j]->getType() == 1) return false;
     int index = getIndexFromCoordinates(board[0].size(),i,j);
     if(closedList.find(index) != closedList.end()) return false;
     return true;
 }
 
 //Algorithms
-bool dfsAlgo(int i,int j,sf::RenderWindow* window, sf::RectangleShape* background, std::vector<Button*>& buttons, sf::RectangleShape* boardFrame, std::vector<std::vector<Space*>>& board, sf::Text* time){
+bool dfsAlgo(int i,int j,std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board, sf::Text* time){
     
     if(i<0 || i>=board.size() || j<0 || j>=board[0].size()) return false;
     if(i == targetX && j == targetY) return true;
@@ -223,29 +223,29 @@ bool dfsAlgo(int i,int j,sf::RenderWindow* window, sf::RectangleShape* backgroun
     if (i != startX || j != startY) board[i][j]->setType(true);
     int xm[4]{ -1,0,0,1 };
     int ym[4]{ 0,-1,1,0 };
-    render(window,background,buttons,boardFrame,board,time);
+    render(buttons,board,time);
     for (int a = 0; a < 4; a++) {
         int newI = i + xm[a];
         int newJ = j + ym[a];
-        if (dfsAlgo(newI, newJ, window, background, buttons, boardFrame, board, time)) return true;
+        if (dfsAlgo(newI, newJ,  buttons, board, time)) return true;
     }
     return false;
 }
-void dfs(sf::RenderWindow* window, sf::RectangleShape* background, std::vector<Button*>& buttons, sf::RectangleShape* boardFrame, std::vector<std::vector<Space*>>& board, sf::Text* time){
+void dfs( std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board, sf::Text* time){
     if(startClicked){
         if (startX != -1 && startY != -1 && targetX != -1 && targetY != -1) {
             tStart = tEnd = std::chrono::steady_clock::now();
             int i = startX;
             int j = startY;
-            dfsAlgo(i, j, window, background, buttons, boardFrame, board, time);
+            dfsAlgo(i, j, buttons, board, time);
             startClicked = false;
         }
         else startClicked = false;
     }
-    else render(window, background, buttons, boardFrame, board, time);
+    else render(buttons, board, time);
     
 }
-bool bfsAlgo(int i, int j, sf::RenderWindow* window, sf::RectangleShape* background, std::vector<Button*>& buttons, sf::RectangleShape* boardFrame, std::vector<std::vector<Space*>>& board, sf::Text* time) {
+bool bfsAlgo(int i, int j, std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board, sf::Text* time) {
     std::list<std::pair<int, int>> q;
     q.push_back({ i,j });
     while (!q.empty()) {
@@ -270,51 +270,63 @@ bool bfsAlgo(int i, int j, sf::RenderWindow* window, sf::RectangleShape* backgro
             q.push_back({ cur.first , cur.second - 1 });
             board[cur.first][cur.second - 1]->setVisited();
         }
-        render(window, background, buttons, boardFrame, board, time);
+        render(buttons, board, time);
     }
     return false;
 }
-void bfs(sf::RenderWindow* window, sf::RectangleShape* background, std::vector<Button*>& buttons, sf::RectangleShape* boardFrame, std::vector<std::vector<Space*>>& board, sf::Text* time) {
+void bfs( std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board, sf::Text* time) {
     if (startClicked) {
         if (startX != -1 && startY != -1 && targetX != -1 && targetY != -1) {
             tStart = tEnd = std::chrono::steady_clock::now();
             int i = startX;
             int j = startY;
-            bfsAlgo(i, j, window, background, buttons, boardFrame, board, time);
+            bfsAlgo(i, j, buttons, board, time);
             startClicked = false;
             initializeCoordinates();
         } else startClicked = false;
     }
-    else render(window, background, buttons, boardFrame, board, time);
+    else render(buttons,board, time);
 
 }
-bool gbsAlgo(std::vector<std::pair<int,int>>& path, pq& opened_list,us_int& closed_list, sf::RenderWindow* window, sf::RectangleShape* background, std::vector<Button*>& buttons, sf::RectangleShape* boardFrame, std::vector<std::vector<Space*>>& board, sf::Text* time) {
-    if(opened_list.size() == 0) return false;
-    auto cur = opened_list.top();
-    opened_list.pop();
-    closed_list.emplace(cur.second);
-    int c = board[0].size();
-    auto p = getCoordinatesFromIndex(c,cur.second);
-    //std::cout<<"Manhattan distance at ("<<p.first<<","<<p.second<<") index ("<<cur.second<<") = "<<cur.first<<std::endl;
-    if(cur.first == 0){
-        std::cout<<"Found it "<<std::endl;
-        return true;
+bool gbsAlgo(pq& opened_list,us_int& closed_list, std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board, sf::Text* time) {
+    while(!opened_list.empty()){
+        auto cur = opened_list.top();
+        opened_list.pop();
+        int mDistance = cur.first;
+        int index = cur.second;
+        if(mDistance == 0){
+            std::cout<<"Found it "<<std::endl;
+            return true;
+        }
+        if(closed_list.find(index) != closed_list.end()) continue;
+        closed_list.emplace(index);
+        
+        int c = board[0].size();
+        auto p = getCoordinatesFromIndex(c,cur.second);
+        int x = p.first, y = p.second;
+        if(x != startX || y != startY) {
+            board[x][y]->setType(true);
+        }
+        render(buttons, board,time);
+        //std::cout<<"("<<x<<","<<y<<") ==> "<<mDistance<<"\n";
+        int xm[4]{ -1,0,0,1 };
+        int ym[4]{ 0,-1,1,0 };
+        for(int i=0;i<4;i++){
+            int newX = x+xm[i];
+            int newY = y+ym[i];
+            if(isValid(newX, newY, board,closed_list)) {
+                int m_dist = manhattanDistance(newX,newY);
+                int idx = getIndexFromCoordinates(c,newX,newY);
+                opened_list.push({m_dist, idx});
+                std::cout<<m_dist<<","<<idx<<std::endl;
+            }
+        }
     }
-    if(p.first != startX || p.second != startY) board[p.first][p.second]->setType(true);
-    render(window,background,buttons,boardFrame, board,time);
-    int x = p.first, y = p.second;
-    if(isValid(x+1, y, board,closed_list)) opened_list.push({manhattanDistance(x+1,y),getIndexFromCoordinates(c,x+1,y)});
-    if(isValid(x-1, y, board,closed_list)) opened_list.push({manhattanDistance(x-1,y),getIndexFromCoordinates(c,x-1,y)});
-    if(isValid(x, y+1, board,closed_list)) opened_list.push({manhattanDistance(x,y+1),getIndexFromCoordinates(c,x,y+1)});
-    if(isValid(x, y-1, board,closed_list)) opened_list.push({manhattanDistance(x,y-1),getIndexFromCoordinates(c,x,y-1)});
-    if(gbsAlgo(path,opened_list,closed_list, window, background, buttons, boardFrame, board, time)){
-        path.push_back(p);
-        return true;
-    }
+    std::cout<<"Out\n";
     return false;
+        
 }
-void gbs(sf::RenderWindow* window, sf::RectangleShape* background, std::vector<Button*>& buttons, sf::RectangleShape* boardFrame, std::vector<std::vector<Space*>>& board, sf::Text* time) {
-    int r = board.size();
+void gbs(std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board, sf::Text* time) {
     int c = board[0].size();
     if (startClicked) {
         if (startX != -1 && startY != -1 && targetX != -1 && targetY != -1) {
@@ -324,14 +336,15 @@ void gbs(sf::RenderWindow* window, sf::RectangleShape* background, std::vector<B
             int mDistance = manhattanDistance(startX,startY);
             int index = getIndexFromCoordinates(c,startX, startY);
             openedList.push({mDistance,index});
-            std::vector<std::pair<int,int>> path;
-            gbsAlgo(path,openedList,closedList, window, background, buttons, boardFrame, board, time);
+            //std::cout<<"manhattan distance : "<<mDistance<<"\t ("<<index<<")\n";
+            //std::cout<<startX<<","<<startY<<"\n"<<targetX<<","<<targetY<<"\n";
+            gbsAlgo(openedList,closedList, buttons, board, time);
             startClicked = false;
             initializeCoordinates();
         }
         else startClicked = false;
     }
-    else render(window, background, buttons, boardFrame, board, time);
+    else render(buttons, board, time);
 }
 
 //Deleter
@@ -360,11 +373,11 @@ int main(){
     //AlgoState Data initialization
     sf::Clock clock;
     float dt;
-    boardFrame = initFrame(window);
-    std::vector<std::vector<Space*>> board = initBoard(window, boardFrame);
-    auto algoButtons = initButtons(window);
-    MyText* title = initTitle(window);
-    sf::Text* time = initTime(window);
+    boardFrame = initFrame();
+    std::vector<std::vector<Space*>> board = initBoard();
+    auto algoButtons = initButtons();
+    MyText* title = initTitle();
+    sf::Text* time = initTime();
 
     //Work
     while(window->isOpen()){
@@ -376,8 +389,8 @@ int main(){
         }
         switch(renderID){
         case 0: {
-            renderID = updateMainState(dt, &mainState, window);
-            time = initTime(window);
+            renderID = updateMainState(dt, &mainState);
+            time = initTime();
             window->clear();
             if (renderID == 4) {
                 window->close();
@@ -393,9 +406,9 @@ int main(){
             if (firstTimeRenderingAlgo) {
                 firstTimeRenderingAlgo = false;
                 deleteBoard(board);
-                board = initBoard(window, boardFrame);
+                board = initBoard();
             }
-            dfs(window, background, algoButtons, boardFrame, board, time);
+            dfs( algoButtons, board, time);
 
         }; break;
         case 2: {
@@ -403,9 +416,9 @@ int main(){
             if (firstTimeRenderingAlgo) {
                 firstTimeRenderingAlgo = false;
                 deleteBoard(board);
-                board = initBoard(window, boardFrame);
+                board = initBoard();
             }
-            bfs(window, background, algoButtons, boardFrame, board, time);
+            bfs(algoButtons, board, time);
 
         }; break;
         case 3: {
@@ -413,9 +426,9 @@ int main(){
             if (firstTimeRenderingAlgo) {
                 firstTimeRenderingAlgo = false;
                 deleteBoard(board);
-                board = initBoard(window, boardFrame);
+                board = initBoard();
             }
-            gbs(window, background, algoButtons, boardFrame, board, time);
+            gbs(algoButtons, board, time);
 
         }; break;
         default: break;
