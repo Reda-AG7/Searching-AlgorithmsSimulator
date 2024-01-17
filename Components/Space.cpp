@@ -4,6 +4,8 @@
 Space::Space(int x, int y, int width){
     this->x = x;
     this->y = y;
+    this->f = INT32_MAX;
+    this->parent = nullptr;
     visited = false;
     this->width = width;
     isPressed = false;
@@ -49,8 +51,8 @@ void Space::render(sf::RenderTarget& target){
     target.draw(*rec);
 }
 
-sf::Vector2f Space::getCoordinates() const{
-    return sf::Vector2f(x,y);
+sf::Vector2i Space::getCoordinates() const{
+    return sf::Vector2i(x,y);
 }
 bool Space::isSpaceClicked() const{
     return isPressed;
@@ -77,4 +79,22 @@ void Space::colorPath(){
 }
 bool Space::isWall() const{
     return type == 1;
+}
+void Space::setPath() {
+    rec->setFillColor(sf::Color(233, 116, 81));
+}
+
+void Space::setParent(Space& parent) {
+    this->parent = &parent;
+}
+
+Space* Space::getParent() const {
+    return this->parent;
+}
+
+void Space::setF(int val) {
+    this->f = val;
+}
+int Space::getF() const {
+    return this->f;
 }
