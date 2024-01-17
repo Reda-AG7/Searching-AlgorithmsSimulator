@@ -1,9 +1,11 @@
 #include "Space.h"
 
 
-Space::Space(int x, int y, int width){
+Space::Space(int x, int y, int width, int i, int j){
     this->x = x;
     this->y = y;
+    this->i = i;
+    this->j = j;
     this->f = INT32_MAX;
     this->parent = nullptr;
     visited = false;
@@ -52,7 +54,7 @@ void Space::render(sf::RenderTarget& target){
 }
 
 sf::Vector2i Space::getCoordinates() const{
-    return sf::Vector2i(x,y);
+    return sf::Vector2i(this->i,this->j);
 }
 bool Space::isSpaceClicked() const{
     return isPressed;
