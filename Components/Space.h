@@ -7,6 +7,7 @@ class Space{
     private:
         sf::RectangleShape* rec;
         int x, y;
+        int i,j;
         int width;
         int type;
         bool isPressed;
@@ -14,7 +15,7 @@ class Space{
         Space* parent;
         int f;
     public:
-        Space(int, int, int);
+        Space(int, int, int, int, int);
         ~Space();
         void update(float& dt, sf::Vector2f&, int&);
         void render(sf::RenderTarget&);

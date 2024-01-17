@@ -105,7 +105,7 @@ std::vector<std::vector<Space*>> initBoard()
     auto board = std::vector<std::vector<Space*>>(height / w, std::vector<Space*>(width / w - 1, nullptr));
     for (int i = 0; i < board.size(); i++) {
         for (int j = 0; j < board[i].size(); j++)
-            board[i][j] = new Space(w * j + x, y + w * i, w);
+            board[i][j] = new Space(w * j + x, y + w * i, w,i,j);
     }
     return board;
 }
@@ -375,11 +375,49 @@ void gbs(std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board,
     else render(buttons, board, time);
 }
 bool dijkstraAlgo(pq2& opened_list, std::unordered_set<Space*>& visited, std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board, sf::Text* time) {
-    
-    return true;
+    bool res = false;
+    while (!opened_list.empty()) {
+        Space* cur = opened_list.top();
+        opened_list.pop();
+        if (visited.find(cur) != visited.end()) continue;
+        visited.emplace(cur);
+        auto [x,y] = cur->getCoordinates();
+        render(buttons, board, time);
+        int xm[4]{ -1,0,0,1 };
+        int ym[4]{ 0,-1,1,0 };
+        for (int a = 0; a < 4; a++) {
+            int newI = x + xm[a];
+            int newJ = y + ym[a];
+            if (isValid2(newI, newJ, board, visited)) {
+                if(cur->getF() + 1 < board[newI][newJ]->getF()){
+                    board[newI][newJ]->setF(cur->getF() + 1);
+                    board[newI][newJ]->setParent(*cur);
+                }
+                opened_list.push(board[newI][newJ]);
+                if(newI != targetX || newJ != targetY) board[newI][newJ]->setType(true);
+            }
+        }
+    }
+    return res;
 }
 void dijkstra(std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& board, sf::Text* time) {
-    
+    int c = board[0].size();
+    if (startClicked) {
+        if (startX != -1 && startY != -1 && targetX != -1 && targetY != -1) {
+            tStart = tEnd = std::chrono::steady_clock::now();
+            pq2 open_list;
+            board[startX][startY]->setF(0);
+            open_list.push(board[startX][startY]);
+            std::unordered_set<Space*> visited;
+            dijkstraAlgo(open_list, visited, buttons, board, time);
+            Space* x = board[targetX][targetY]->getParent();
+            if (x) drawPath(x);
+            startClicked = false;
+            initializeCoordinates();
+        }
+        else startClicked = false;
+    }
+    else render(buttons, board, time);
 }
 //Deleter
 void deleteBoard(std::vector<std::vector<Space*>>& board) {
