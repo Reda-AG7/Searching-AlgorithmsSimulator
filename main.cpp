@@ -8,7 +8,7 @@
 
 
 //*************** GLOBAL **************
-
+//using functor to compare elements in pq
 struct Compare {
     bool operator()(const std::pair<int, int>& a, const std::pair<int, int>& b) {
         return a.first > b.first;
@@ -17,6 +17,7 @@ struct Compare {
 
 using us_int = std::unordered_set<int>;
 using pq = std::priority_queue<std::pair<int, int>, std::vector<std::pair<int, int>>, Compare>;
+//using lambda to compare elements in pq
 auto Compare2 = [](Space* a, Space* b) -> bool {return a->getF() > b->getF(); };
 using pq2 = std::priority_queue < Space*, std::vector<Space*>, decltype(Compare2)>;
 //Fonts
@@ -411,7 +412,7 @@ void dijkstra(std::vector<Button*>& buttons, std::vector<std::vector<Space*>>& b
             std::unordered_set<Space*> visited;
             dijkstraAlgo(open_list, visited, buttons, board, time);
             Space* x = board[targetX][targetY]->getParent();
-            if (x) drawPath(x);
+            if(x) drawPath(x);
             startClicked = false;
             initializeCoordinates();
         }
